@@ -1,45 +1,33 @@
-Overview
-========
+# Pipeline de Dados: Integração Postgres com Airflow e Docker
 
-Welcome to Astronomer! This project was generated after you ran 'astro dev init' using the Astronomer CLI. This readme describes the contents of the project, as well as how to run Apache Airflow on your local machine.
+Este projeto foi desenvolvido como parte do desafio técnico da Lighthouse. O objetivo foi criar um fluxo automático (ETL) para migrar dados de clientes entre dois bancos de dados PostgreSQL, garantindo que o processo seja seguro e organizado.
 
-Project Contents
-================
+## 🛠️ Tecnologias Utilizadas
+* **Orquestração:** Apache Airflow (Astro CLI)
+* **Ambiente:** Docker e Docker Compose
+* **Bancos de Dados:** PostgreSQL (Instâncias Source e Target)
+* **Ferramenta de Query:** DBeaver
+* **Linguagem:** Python (Pandas)
 
-Your Astro project contains the following files and folders:
+## ⚙️ Como o projeto funciona
+O pipeline foi estruturado em três etapas principais dentro de uma DAG:
 
-- dags: This folder contains the Python files for your Airflow DAGs. By default, this directory includes one example DAG:
-    - `example_astronauts`: This DAG shows a simple ETL pipeline example that queries the list of astronauts currently in space from the Open Notify API and prints a statement for each astronaut. The DAG uses the TaskFlow API to define tasks in Python, and dynamic task mapping to dynamically print a statement for each astronaut. For more on how this DAG works, see our [Getting started tutorial](https://www.astronomer.io/docs/learn/get-started-with-airflow).
-- Dockerfile: This file contains a versioned Astro Runtime Docker image that provides a differentiated Airflow experience. If you want to execute other commands or overrides at runtime, specify them here.
-- include: This folder contains any additional files that you want to include as part of your project. It is empty by default.
-- packages.txt: Install OS-level packages needed for your project by adding them to this file. It is empty by default.
-- requirements.txt: Install Python packages needed for your project by adding them to this file. It is empty by default.
-- plugins: Add custom or community plugins for your project to this file. It is empty by default.
-- airflow_settings.yaml: Use this local-only file to specify Airflow Connections, Variables, and Pools instead of entering them in the Airflow UI as you develop DAGs in this project.
+1. **Extração:** O sistema conecta no banco de origem e captura a tabela de clientes.
+2. **Staging:** Para garantir a segurança, os dados são salvos primeiro em um arquivo CSV local. Isso serve como um backup antes da carga final.
+3. **Carga:** O Airflow lê esse arquivo CSV e insere as informações no banco de destino.
 
-Deploy Your Project Locally
-===========================
+## 🚀 Desafios e Aprendizados
+Durante o desenvolvimento, precisei lidar com situações reais que acontecem no dia a dia de quem trabalha com dados:
 
-Start Airflow on your local machine by running 'astro dev start'.
+* **Conexão de Rede no Docker:** Configurei a comunicação entre os containers usando portas específicas (5433 e 5434). Também precisei ajustar os hosts conforme o IP da rede local mudava para manter o fluxo ativo.
+* **Integridade dos Dados:** Gerenciei erros de chaves duplicadas (Primary Key) para garantir que o banco de destino não ficasse com registros repetidos.
+* **Manutenção com DBeaver:** Usei a ferramenta para validar se as tabelas estavam corretas e para limpar o banco (Truncate/Delete) durante os testes de carga.
 
-This command will spin up five Docker containers on your machine, each for a different Airflow component:
+## 📊 Resultado Final
+O pipeline foi testado e validado, completando todas as etapas com sucesso conforme a imagem abaixo:
+<img width="1900" height="898" alt="Captura de tela 2026-03-12 162835" src="https://github.com/user-attachments/assets/12079b04-4f10-4e7f-ad01-6bffadc12646" />
 
-- Postgres: Airflow's Metadata Database
-- Scheduler: The Airflow component responsible for monitoring and triggering tasks
-- DAG Processor: The Airflow component responsible for parsing DAGs
-- API Server: The Airflow component responsible for serving the Airflow UI and API
-- Triggerer: The Airflow component responsible for triggering deferred tasks
 
-When all five containers are ready the command will open the browser to the Airflow UI at http://localhost:8080/. You should also be able to access your Postgres Database at 'localhost:5432/postgres' with username 'postgres' and password 'postgres'.
 
-Note: If you already have either of the above ports allocated, you can either [stop your existing Docker containers or change the port](https://www.astronomer.io/docs/astro/cli/troubleshoot-locally#ports-are-not-available-for-my-local-airflow-webserver).
-
-Deploy Your Project to Astronomer
-=================================
-
-If you have an Astronomer account, pushing code to a Deployment on Astronomer is simple. For deploying instructions, refer to Astronomer documentation: https://www.astronomer.io/docs/astro/deploy-code/
-
-Contact
-=======
-
-The Astronomer CLI is maintained with love by the Astronomer team. To report a bug or suggest a change, reach out to our support.
+---
+**Projeto desenvolvido por Agatha Luiza**
